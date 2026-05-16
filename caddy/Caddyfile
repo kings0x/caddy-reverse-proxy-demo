@@ -1,0 +1,77 @@
+{
+    admin :2019
+    auto_https off
+    order rate_limit before basicauth
+}
+
+
+:80 {
+
+    @frontend {
+        not path /api/*
+    }
+
+    @auth {
+        path /api/auth/*
+    }
+
+    @normal {
+        path /api/*
+    }
+
+    handle @auth {
+
+        rate_limit {
+            zone per_ip {
+                key {remote_host}
+                events 100
+                window 1h
+            }
+
+            zone per_user {
+                key {http.request.header.Authorization}
+                events 100
+                window 1h
+            }
+
+            storage redis {
+                address redis:6379
+            }
+        }
+
+        reverse_proxy host.docker.internal:8080 host.docker.internal:8081 host.docker.internal:8082 {
+            lb_policy least_conn
+        }
+
+    }
+
+    handle @normal {
+
+        rate_limit {
+            zone per_ip {
+                key {remote_host}
+                events 100
+                window 1m
+            }
+
+            zone per_user {
+                key {http.request.header.Authorization}
+                events 100
+                window 1m
+            }
+
+            storage redis {
+                address redis:6379
+            }
+        }
+
+        reverse_proxy host.docker.internal:8080 host.docker.internal:8081 host.docker.internal:8082 {
+            lb_policy least_conn
+        }
+    }
+
+
+    handle @frontend {
+        reverse_proxy host.docker.internal:3000
+    }
+}
