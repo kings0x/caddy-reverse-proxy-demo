@@ -6,11 +6,26 @@ A hands-on project exploring how to use **Caddy** as a reverse proxy that load b
 
 ## Architecture
 
-```
-Internet → Caddy → [ Instance 1 | Instance 2 | Instance 3 | Frontend ]
-                         ↕
-                       Redis
-                  (Rate Limit Store)
+``` mermaid
+sequenceDiagram
+    participant Client as Client
+    participant Caddy as Caddy Reverse Proxy
+    participant Redis as Redis Rate Limiter
+    participant App1 as App Instance 1
+    participant App2 as App Instance 2
+    participant App3 as App Instance 3
+
+    Client->>Caddy: HTTP Request
+    Caddy->>Redis: Check Rate Limit
+    Redis-->>Caddy: Allow/Deny
+   alt Allowed
+        Caddy->>App1: Forward (LB: Round Robin)
+        Caddy->>App2: Forward
+        Caddy->>App3: Forward
+        App1-->>Client: Response
+    else Denied
+        Caddy-->>Client: 429 Too Many Requests
+    end
 ```
 
 ---
