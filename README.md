@@ -1,5 +1,21 @@
 # Caddy Reverse Proxy & Load Balancer with Redis Rate Limiting
 
+
+## Quick Start
+
+Install with:
+```bash
+pip install caddy-reverse-proxy-demo
+```
+
+Or clone and run:
+```bash
+git clone https://github.com/kings0x/caddy-reverse-proxy-demo.git
+cd caddy-reverse-proxy-demo
+python setup.py install
+```
+
+
 A hands-on project exploring how to use **Caddy** as a reverse proxy that load balances across multiple server instances with centralized rate limiting backed by **Redis**.
 
 ---
